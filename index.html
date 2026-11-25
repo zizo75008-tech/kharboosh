@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="theme-color" content="#090d1a" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="icon" type="image/svg+xml" href="icon.svg" />
+  <link rel="apple-touch-icon" href="icon.svg" />
+  <title>خربوش | 8-Bit Egyptian Desktop Pet</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Cairo:wght@500;700;800;900&family=Press+Start+2P&family=JetBrains+Mono:wght@500;700&display=swap"
+    rel="stylesheet"
+  />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body class="theme-cairo-night">
+  <!-- Simulated MacBook Desktop Environment -->
+  <div id="desktop" class="desktop">
+    <div class="wallpaper-grid" aria-hidden="true"></div>
+    <div class="wallpaper-glow" aria-hidden="true"></div>
+    <div id="focus-dim-overlay" class="focus-dim-overlay hidden" aria-hidden="true"></div>
+
+    <!-- Top macOS-style Menu Bar -->
+    <header class="menubar" dir="ltr">
+      <div class="menubar-left">
+        <span class="apple-mark" title="Kharboosh OS">👾</span>
+        <strong class="app-brand">Kharboosh OS</strong>
+        <button class="menu-pill" id="btn-menu-checkin" title="اسألني سؤال خفيف (Check-in)">
+          💬 اسألني
+        </button>
+        <button class="menu-pill" id="btn-menu-companion" title="تبديل الشخصية التانية (الهودي الوردي)">
+          🩷 صاحبته
+        </button>
+        <button class="menu-pill" id="btn-menu-wardrobe" title="تغيير اللبس والخلفية">
+          🎩 المظهر
+        </button>
+      </div>
+
+      <div class="menubar-center">
+        <!-- Focus Timer Indicator Pill (like FOCUS 24:39 in the video) -->
+        <button id="focus-pill" class="focus-pill" title="اضغط للتحكم في مؤقت التركيز">
+          <span class="focus-dot"></span>
+          <span class="focus-label">FOCUS</span>
+          <span id="focus-timer-text" class="focus-time">25:00</span>
+        </button>
+      </div>
+
+      <div class="menubar-right">
+        <span id="pet-state-badge" class="status-chip" title="حالة خربوش الحالية">
+          <span class="status-emoji">😎</span>
+          <span id="pet-state-label">صاحي ورايق</span>
+        </span>
+        <button id="btn-sound-toggle" class="icon-chip" title="تشغيل/كتم الصوت والمؤثرات">
+          🔊
+        </button>
+        <button id="btn-mic-status" class="icon-chip" title="حالة المايك والأوامر الصوتية">
+          🎙️ <span id="mic-chip-text">جاهز</span>
+        </button>
+        <span id="menubar-clock" class="clock-text">12:00 AM</span>
+      </div>
+    </header>
+
+    <!-- Desktop Shortcuts (Right side like Mac icons) -->
+    <aside class="desktop-icons" dir="rtl" aria-label="أيقونات سطح المكتب">
+      <button class="desk-icon" data-open-window="win-terminal">
+        <span class="desk-icon-box">💻</span>
+        <span>Claude Code</span>
+      </button>
+      <button class="desk-icon" id="desk-play-coffee">
+        <span class="desk-icon-box">☕</span>
+        <span>Catch Coffee</span>
+      </button>
+      <button class="desk-icon" data-open-window="win-notes">
+        <span class="desk-icon-box">📝</span>
+        <span>ملاحظات زوز</span>
+      </button>
+      <button class="desk-icon" data-open-window="win-commands">
+        <span class="desk-icon-box">🗣️</span>
+        <span>أوامر الصوت</span>
+      </button>
+    </aside>
+
+    <!-- Top-Left Voice & Quick Command Console HUD -->
+    <section class="command-hud" dir="rtl" aria-label="وحدة التحكم الصوتي والأوامر">
+      <div class="hud-header">
+        <div class="hud-title">
+          <span class="pixel-badge" dir="ltr">8-BIT</span>
+          <h1>خربوش <small>رفيق الشاشة المصري</small></h1>
+        </div>
+        <div class="hud-toggles">
+          <button id="btn-wake-word" class="hud-toggle-btn" title="تفعيل الاستماع المستمر لكلمة النداء: يا خربوش">
+            <span class="pulse-ring"></span>
+            <span>نداء "يا خربوش"</span>
+          </button>
+          <button id="btn-talk-mic" class="hud-mic-btn" title="اضغط واتكلم بالمصري">
+            🎙️ اتكلم
+          </button>
+          <button id="btn-hud-collapse" class="hud-collapse-btn" title="تصغير/توسيع لوحة التحكم" aria-label="تصغير">
+            ▴
+          </button>
+        </div>
+      </div>
+
+      <div id="hud-collapsible" class="hud-collapsible">
+      <form id="chat-form" class="chat-form">
+        <input
+          id="chat-input"
+          type="text"
+          autocomplete="off"
+          placeholder='اكتب لخربوش أو قول: "إيه يا خربش؟"، "شغل التركيز"، "العب قهوة"...'
+        />
+        <button type="submit" class="send-btn">ابعت</button>
+      </form>
+
+      <div id="voice-transcript-bar" class="transcript-bar hidden">
+        <span class="transcript-dot"></span>
+        <span id="voice-transcript-text">بسمعك يا زوز...</span>
+      </div>
+
+      <div class="quick-chips">
+        <button class="chip-btn" data-phrase="مساؤه يا خربش">👋 مساؤه</button>
+        <button class="chip-btn" data-phrase="اسألني">💬 اسألني</button>
+        <button class="chip-btn" data-phrase="شغل التركيز">🔒 ركّز معايا</button>
+        <button class="chip-btn" data-phrase="يلا نلعب قهوة">☕ العب قهوة</button>
+        <button class="chip-btn" data-phrase="نام يا خربوش">😴 خليه ينام</button>
+        <button class="chip-btn" data-phrase="هات صاحبتك">🩷 هات صاحبته</button>
+        <button class="chip-btn" data-phrase="قول نكتة">😂 نكتة</button>
+        <button class="chip-btn" data-phrase="شربت قهوة">🥤 إدي له قهوة</button>
+      </div>
+      </div>
+    </section>
+
+    <!-- Draggable Desktop Windows -->
+    <div id="windows-layer" class="windows-layer">
+      <!-- Simulated Terminal / Claude Code Window -->
+      <section id="win-terminal" class="mac-window hidden" style="top: 90px; left: 420px; width: 470px;">
+        <div class="win-titlebar" data-drag-window="win-terminal" dir="ltr">
+          <div class="traffic-lights">
+            <button class="tl close" data-close-window="win-terminal" aria-label="إغلاق"></button>
+            <button class="tl min" data-close-window="win-terminal" aria-label="تصغير"></button>
+            <button class="tl max" aria-label="تكبير"></button>
+          </div>
+          <span class="win-title">claude — kharboosh-pet ~ zsh</span>
+          <span class="win-meta">8-bit</span>
+        </div>
+        <div class="win-body terminal-body" dir="ltr">
+          <div id="terminal-log" class="terminal-log"></div>
+          <div class="terminal-actions" dir="rtl">
+            <button class="mini-btn" id="btn-term-checkin">🎲 طلع سؤال تفاعلي</button>
+            <button class="mini-btn" id="btn-term-laugh">😂 خليه يضحك</button>
+            <button class="mini-btn" id="btn-term-banter">💬 حوار مع صاحبته</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Focus Timer Config Window -->
+      <section id="win-focus" class="mac-window hidden" style="top: 110px; left: 50%; transform: translateX(-50%); width: 370px;">
+        <div class="win-titlebar" data-drag-window="win-focus" dir="ltr">
+          <div class="traffic-lights">
+            <button class="tl close" data-close-window="win-focus" aria-label="إغلاق"></button>
+            <button class="tl min" data-close-window="win-focus" aria-label="تصغير"></button>
+            <button class="tl max" aria-label="تكبير"></button>
+          </div>
+          <span class="win-title">Focus Mode — Locked In 🔒</span>
+          <span class="win-meta">Pomodoro</span>
+        </div>
+        <div class="win-body" dir="rtl">
+          <p class="win-desc">لما تشغّل وضع التركيز، خربوش هيركّز معاك وهيمنع الهزار والألعاب لحد ما التايمر يخلص!</p>
+          <div class="focus-big-clock" id="focus-modal-clock" dir="ltr">25:00</div>
+          <div class="preset-row">
+            <button class="preset-btn" data-focus-mins="25">25 دقيقة</button>
+            <button class="preset-btn" data-focus-mins="15">15 دقيقة</button>
+            <button class="preset-btn" data-focus-mins="5">5 دقايق</button>
+            <button class="preset-btn" data-focus-mins="1">دقيقة (تجربة)</button>
+          </div>
+          <div class="focus-controls">
+            <button id="btn-focus-start" class="primary-btn">🔒 ابدأ التركيز</button>
+            <button id="btn-focus-pause" class="secondary-btn">⏸️ إيقاف مؤقت</button>
+            <button id="btn-focus-reset" class="danger-btn">🔄 تصفير</button>
+          </div>
+          <label class="toggle-row">
+            <input type="checkbox" id="chk-focus-ambient" />
+            <span>تشغيل صوت مطر خفيف / كافيه هادي أثناء التركيز</span>
+          </label>
+        </div>
+      </section>
+
+      <!-- Wardrobe & Themes Window -->
+      <section id="win-wardrobe" class="mac-window hidden" style="top: 100px; left: 320px; width: 410px;">
+        <div class="win-titlebar" data-drag-window="win-wardrobe" dir="ltr">
+          <div class="traffic-lights">
+            <button class="tl close" data-close-window="win-wardrobe" aria-label="إغلاق"></button>
+            <button class="tl min" data-close-window="win-wardrobe" aria-label="تصغير"></button>
+            <button class="tl max" aria-label="تكبير"></button>
+          </div>
+          <span class="win-title">دولاب خربوش &amp; الثيمات</span>
+          <span class="win-meta">Pixels</span>
+        </div>
+        <div class="win-body" dir="rtl">
+          <h3 class="section-sub">إكسسوار خربوش</h3>
+          <div class="option-grid" id="accessory-options">
+            <button class="opt-card active" data-accessory="shades">🕶️ نضارة كيمبو</button>
+            <button class="opt-card" data-accessory="tarboosh">🎩 طربوش مصري</button>
+            <button class="opt-card" data-accessory="headphones">🎧 سماعة جيمينج</button>
+            <button class="opt-card" data-accessory="tea">🍵 كوباية شاي</button>
+          </div>
+          <h3 class="section-sub">خلفية سطح المكتب</h3>
+          <div class="option-grid" id="theme-options">
+            <button class="opt-card active" data-theme="theme-cairo-night">🌃 ليل القاهرة</button>
+            <button class="opt-card" data-theme="theme-mac-ventura">🍎 Mac Dark</button>
+            <button class="opt-card" data-theme="theme-retro-arcade">🕹️ أركيد 8-Bit</button>
+            <button class="opt-card" data-theme="theme-cozy-cafe">☕ قهوة وسط البلد</button>
+          </div>
+          <h3 class="section-sub">ثيم اللعبة الصغيرة</h3>
+          <div class="option-grid" id="game-skin-options">
+            <button class="opt-card active" data-game-skin="coffee">☕ Catch the Coffee</button>
+            <button class="opt-card" data-game-skin="egypt">🧆 فطار مصري (شاي وطعمية)</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Voice & AI Brain Settings Window -->
+      <section id="win-settings" class="mac-window hidden" style="top: 85px; left: 260px; width: 440px;">
+        <div class="win-titlebar" data-drag-window="win-settings" dir="ltr">
+          <div class="traffic-lights">
+            <button class="tl close" data-close-window="win-settings" aria-label="إغلاق"></button>
+            <button class="tl min" data-close-window="win-settings" aria-label="تصغير"></button>
+            <button class="tl max" aria-label="تكبير"></button>
+          </div>
+          <span class="win-title">إعدادات الصوت والذكاء الاصطناعي</span>
+          <span class="win-meta">Voice+LLM</span>
+        </div>
+        <div class="win-body" dir="rtl">
+          <div class="field-group">
+            <label for="sel-tts-voice">صوت الرد العربي المصري (TTS Voice):</label>
+            <select id="sel-tts-voice"></select>
+            <small id="tts-voice-status" class="voice-status-note"></small>
+          </div>
+          <div class="field-group">
+            <label for="sel-tts-engine">محرك نطق الصوت:</label>
+            <select id="sel-tts-engine">
+              <option value="browser">صوت الجهاز/المتصفح (مجاني ومباشر — يدعم مصري في Edge والآيفون)</option>
+              <option value="elevenlabs">ElevenLabs مصري فائق الواقعية (بمفتاح شخصي)</option>
+              <option value="openai">OpenAI TTS صوت عربي طبيعي (بمفتاح شخصي)</option>
+            </select>
+          </div>
+          <div id="tts-key-box" class="field-group hidden">
+            <label for="inp-tts-key">مفتاح الصوت (TTS API Key):</label>
+            <input id="inp-tts-key" type="password" placeholder="الصق مفتاح ElevenLabs أو OpenAI هنا..." dir="ltr" />
+          </div>
+          <div class="range-grid">
+            <div class="field-group">
+              <label for="rng-tts-rate">سرعة الكلام: <span id="val-tts-rate">1.05</span></label>
+              <input id="rng-tts-rate" type="range" min="0.7" max="1.4" step="0.05" value="1.05" />
+            </div>
+            <div class="field-group">
+              <label for="rng-tts-pitch">طبقة الصوت: <span id="val-tts-pitch">1.0</span></label>
+              <input id="rng-tts-pitch" type="range" min="0.6" max="1.5" step="0.05" value="1.0" />
+            </div>
+          </div>
+          <div class="field-group">
+            <label for="sel-stt-lang">لغة المايك (STT):</label>
+            <select id="sel-stt-lang">
+              <option value="ar-EG">العربية (مصر) — ar-EG</option>
+              <option value="ar-SA">العربية (العامة) — ar-SA</option>
+              <option value="en-US">English — en-US</option>
+            </select>
+          </div>
+          <label class="toggle-row">
+            <input type="checkbox" id="chk-auto-tts" checked />
+            <span>نطق ردود خربوش بالصوت تلقائياً (مع مؤثرات 8-Bit)</span>
+          </label>
+          <label class="toggle-row">
+            <input type="checkbox" id="chk-auto-sleep" checked />
+            <span>تفعيل النوم التلقائي بعد 75 ثانية خمول</span>
+          </label>
+          <hr class="sep" />
+          <div class="field-group">
+            <label for="sel-llm-provider">محرك الذكاء (اختياري — شغال محلياً مجاناً بدون مفتاح):</label>
+            <select id="sel-llm-provider">
+              <option value="local">خربوش المحلي (شخصية مصرية مدمجة 100%)</option>
+              <option value="gemini">Google Gemini API (مفتاح شخصي)</option>
+              <option value="openai">OpenAI / Compatible API (مفتاح شخصي)</option>
+            </select>
+          </div>
+          <div id="llm-key-box" class="field-group hidden">
+            <label for="inp-llm-key">API Key (يتحفظ في المتصفح فقط):</label>
+            <input id="inp-llm-key" type="password" placeholder="الصق المفتاح هنا..." dir="ltr" />
+          </div>
+          <div class="settings-actions">
+            <button id="btn-test-voice" class="primary-btn">🔊 جرّب صوت خربوش</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Notes Window -->
+      <section id="win-notes" class="mac-window hidden" style="top: 130px; left: 480px; width: 340px;">
+        <div class="win-titlebar" data-drag-window="win-notes" dir="ltr">
+          <div class="traffic-lights">
+            <button class="tl close" data-close-window="win-notes" aria-label="إغلاق"></button>
+            <button class="tl min" data-close-window="win-notes" aria-label="تصغير"></button>
+            <button class="tl max" aria-label="تكبير"></button>
+          </div>
+          <span class="win-title">ملاحظات سريعة — Notes</span>
+          <span class="win-meta">Saved</span>
+        </div>
+        <div class="win-body" dir="rtl">
+          <textarea id="notes-area" class="notes-area" rows="7" placeholder="اكتب مهامك هنا وخربوش هيفكرك..."></textarea>
+        </div>
+      </section>
+
+      <!-- Voice Commands & Shortcuts Guide Window -->
+      <section id="win-commands" class="mac-window hidden" style="top: 95px; left: 300px; width: 430px;">
+        <div class="win-titlebar" data-drag-window="win-commands" dir="ltr">
+          <div class="traffic-lights">
+            <button class="tl close" data-close-window="win-commands" aria-label="إغلاق"></button>
+            <button class="tl min" data-close-window="win-commands" aria-label="تصغير"></button>
+            <button class="tl max" aria-label="تكبير"></button>
+          </div>
+          <span class="win-title">دليل خربوش والأوامر الصوتية</span>
+          <span class="win-meta">Help</span>
+        </div>
+        <div class="win-body commands-list" dir="rtl">
+          <p class="win-desc">قول أو اكتب أي جملة من دول لخربوش:</p>
+          <ul>
+            <li><strong>النداء الصوتي:</strong> "يا خربوش" أو "إيه يا خربش؟"</li>
+            <li><strong>التركيز:</strong> "شغل التركيز" / "ابدأ بومودورو" / "وقف التركيز"</li>
+            <li><strong>الميني جيم:</strong> "العب قهوة" / "يلا نلعب" / "Catch the coffee"</li>
+            <li><strong>النوم والصحيان:</strong> "نام يا خربوش" / "اصحى يا خربش"</li>
+            <li><strong>الشخصية التانية:</strong> "هات صاحبتك" / "نادي فلفلة" / "امشيها"</li>
+            <li><strong>الدردشة والهزار:</strong> "مساؤه" / "قول نكتة" / "اضحك" / "أنا جعان"</li>
+            <li><strong>فتح النوافذ:</strong> "افتح النوتس" / "افتح التيرمينال" / "افتح الإعدادات"</li>
+          </ul>
+          <p class="win-tip">💡 تقدر تسحب خربوش بالماوس وتسيبه في أي مكان على الشاشة، وهينط ويرجع يقف فوق الـ Dock!</p>
+        </div>
+      </section>
+    </div>
+
+    <!-- Catch the Coffee Mini-Game Stage -->
+    <div id="minigame-overlay" class="minigame-overlay hidden" aria-label="لعبة التقاط القهوة">
+      <div class="minigame-hud" dir="ltr">
+        <div class="mg-stat">☕ <span id="mg-score">0</span></div>
+        <div class="mg-stat">🔥 x<span id="mg-combo">1</span></div>
+        <div class="mg-stat">⏱️ <span id="mg-time">25</span>s</div>
+        <div class="mg-stat">🏆 Best: <span id="mg-best">0</span></div>
+        <button id="btn-mg-exit" class="mg-exit-btn" dir="rtl">خروج</button>
+      </div>
+      <canvas id="minigame-canvas"></canvas>
+      <div id="minigame-result" class="minigame-result hidden" dir="rtl">
+        <div class="mg-result-card">
+          <div class="mg-result-emoji">☕</div>
+          <h2 id="mg-result-title">9 cups. Not bad, unc!</h2>
+          <p id="mg-result-msg">9 كوبايات قهوة! إنت دماغك شغالة يا زوز.</p>
+          <div class="mg-result-actions">
+            <button id="btn-mg-replay" class="primary-btn">🔄 العب تاني</button>
+            <button id="btn-mg-close" class="secondary-btn">رجوع للديسكتوب</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pet Stage Directly Above the Dock -->
+    <div id="pet-stage" class="pet-stage" aria-label="منصة الشخصيات فوق شريط التطبيقات">
+      <!-- Sleep Bed Sprite (visible in Sleep Mode) -->
+      <canvas id="bed-canvas" class="bed-canvas hidden" width="128" height="64"></canvas>
+      <div id="zzz-layer" class="zzz-layer hidden" aria-hidden="true">
+        <span>Z</span><span>Z</span><span>Z</span>
+      </div>
+
+      <!-- Companion Character (Pink Hoodie) -->
+      <div id="companion-wrap" class="pet-wrap companion-wrap hidden" title="صاحبة خربوش (الهودي الوردي)">
+        <div id="companion-bubble" class="speech-bubble companion-bubble hidden" dir="rtl">
+          <p id="companion-bubble-text"></p>
+        </div>
+        <canvas id="companion-canvas" class="pet-canvas" width="96" height="96"></canvas>
+      </div>
+
+      <!-- Main Pet: Kharboosh -->
+      <div id="kharboosh-wrap" class="pet-wrap kharboosh-wrap" title="اسحب خربوش أو اضغط عليه!">
+        <!-- Floating Pixel Sign above head (like FOCUS 24:39 / FREE HUGS in the video) -->
+        <div id="pet-head-tag" class="pet-head-tag" dir="ltr">خربوش • 8-BIT</div>
+
+        <!-- 8-Bit Speech Bubble & Interactive YES/NO Cards -->
+        <div id="speech-bubble" class="speech-bubble hidden" dir="rtl">
+          <div class="bubble-header">
+            <span class="bubble-name">خربوش</span>
+            <button id="btn-bubble-close" class="bubble-close" aria-label="إغلاق">×</button>
+          </div>
+          <p id="bubble-text" class="bubble-text"></p>
+          <div id="bubble-choices" class="bubble-choices hidden"></div>
+        </div>
+
+        <canvas id="kharboosh-canvas" class="pet-canvas" width="96" height="96"></canvas>
+        <div id="pet-shadow" class="pet-shadow"></div>
+      </div>
+    </div>
+
+    <!-- Bottom macOS-Style Dock -->
+    <nav class="dock-wrap" aria-label="شريط التطبيقات (Dock)">
+      <div class="dock" dir="ltr">
+        <button class="dock-item" data-open-window="win-terminal" title="Claude Code / Terminal">
+          <span class="dock-icon">💻</span>
+          <span class="dock-tooltip">Terminal</span>
+          <span class="dock-dot"></span>
+        </button>
+        <button class="dock-item" id="dock-focus" title="مؤقت التركيز (Focus Timer)">
+          <span class="dock-icon">⏱️</span>
+          <span class="dock-tooltip">Focus</span>
+          <span class="dock-dot" id="dot-focus"></span>
+        </button>
+        <button class="dock-item" id="dock-game" title="العب Catch the Coffee">
+          <span class="dock-icon">☕</span>
+          <span class="dock-tooltip">Coffee Game</span>
+        </button>
+        <button class="dock-item" id="dock-sleep" title="وضع النوم (السرير الأزرق)">
+          <span class="dock-icon">🛏️</span>
+          <span class="dock-tooltip">Sleep Mode</span>
+          <span class="dock-dot" id="dot-sleep"></span>
+        </button>
+        <button class="dock-item" id="dock-companion" title="الشخصية التانية (هودي وردي)">
+          <span class="dock-icon">🩷</span>
+          <span class="dock-tooltip">Companion</span>
+          <span class="dock-dot" id="dot-companion"></span>
+        </button>
+        <div class="dock-divider" aria-hidden="true"></div>
+        <button class="dock-item" data-open-window="win-wardrobe" title="الدولاب والثيمات">
+          <span class="dock-icon">🎨</span>
+          <span class="dock-tooltip">Wardrobe</span>
+        </button>
+        <button class="dock-item" data-open-window="win-settings" title="إعدادات الصوت والذكاء">
+          <span class="dock-icon">🎙️</span>
+          <span class="dock-tooltip">Voice &amp; AI</span>
+        </button>
+        <button class="dock-item" data-open-window="win-notes" title="ملاحظات">
+          <span class="dock-icon">📝</span>
+          <span class="dock-tooltip">Notes</span>
+        </button>
+        <button class="dock-item" data-open-window="win-commands" title="دليل الأوامر">
+          <span class="dock-icon">❓</span>
+          <span class="dock-tooltip">Commands</span>
+        </button>
+      </div>
+    </nav>
+  </div>
+
+  <script defer src="src/sprites.js"></script>
+  <script defer src="src/audio.js"></script>
+  <script defer src="src/brain.js"></script>
+  <script defer src="src/voice.js"></script>
+  <script defer src="src/game.js"></script>
+  <script defer src="src/app.js"></script>
+</body>
+</html>

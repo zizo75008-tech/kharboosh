@@ -1,0 +1,10 @@
+{
+  "name": "خربوش | رفيق الشاشة المصري 8-Bit",
+  "short_name": "خربوش",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#090d1a",
+  "theme_color": "#090d1a",
+  "description": "شخصية بيكسل مصرية تفاعلية بالصوت والحركة والألعاب ووضع التركيز للويندوز والآيفون والأندرويد"
+}
